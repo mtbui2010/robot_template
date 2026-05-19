@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{cookiecutter.package_name}}"
+version = "{{cookiecutter.version}}"
+description = "{{cookiecutter.description}}"
+authors = [{ name = "{{cookiecutter.author}}" }]
+dependencies = [
+    "robot_agent",
+]
+# Requires robot_agent, pyconnect, ROS2 in the environment.
+# Install with: pip install -e .
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["{{cookiecutter.package_name}}*"]

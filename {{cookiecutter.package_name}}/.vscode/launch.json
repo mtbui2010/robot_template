@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "{{cookiecutter.package_name}}: uvicorn (debug)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "{{cookiecutter.package_name}}.main:app",
+        "--host", "0.0.0.0",
+        "--port", "{{cookiecutter.default_port}}",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/{{cookiecutter.robot_agent_relpath}}/.vscode/python-with-ros.sh",
+      "envFile": "${workspaceFolder}/{{cookiecutter.robot_agent_relpath}}/.vscode/ros2.env",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}

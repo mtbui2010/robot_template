@@ -1,0 +1,11 @@
+{
+    "project_name": "My Robot",
+    "package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+    "description": "A robot agent built on robot_agent",
+    "author": "Your Name",
+    "version": "0.1.0",
+    "skills": "find,pick,place",
+    "default_port": "8001",
+    "robot_agent_relpath": "../robot_agent",
+    "pyconnect_relpath": "../pyconnect"
+}

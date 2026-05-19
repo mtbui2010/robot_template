@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# venv
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+
+# Runtime state (live in {{cookiecutter.package_name}}/data/.gitignore too)
