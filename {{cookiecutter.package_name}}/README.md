@@ -130,6 +130,10 @@ three reference patterns: external (HTTP), pure-ROS2, and pyconnect-wrapped.
 
 ## Connecting from the UI
 
-The agent listens on `http://<host>:{{cookiecutter.default_port}}`. In the
-[`robotapp`](../robotapp) frontend's **DevicePanel**, add this robot under
-the Robot Agent picker (give it a name + URL), then click Connect.
+After `make run` the agent listens on
+`http://<host>:{{cookiecutter.default_port}}`. Open the hosted dashboard at
+<https://robot.aistations.org> and click the **Guide** button in the
+top-right corner — it walks you through registering this agent's URL,
+connecting an LLM, ROS endpoints, cameras, and sending your first command.
+
+(Self-hosting the dashboard: see [`robotapp`](../robotapp).)

@@ -72,43 +72,63 @@ def {name}(node, **params) -> dict:
 '''
 
 
-FIND_TEMPLATE = '''"""Mock `find` skill -- locate an object.
+FIND_TEMPLATE = '''"""Mock `find` skill — fetch image + call detector. Replace with real logic.
 
-Replace the body with real perception (e.g. a vision client over node.agents).
+Generated to mirror `make skill-detect`: pulls a frame from a registered
+camera agent and forwards it to a TCP detector client. Edit the agent name,
+detector key, and request payload to match your setup.
 """
 
 from robot_agent.skills import log_data
+from robot_agent.state  import current
+
+
+def _fetch_data_find(node):
+    """Mock image fetch. Replace 'head_rgb'/'head_depth' with the agent names
+    you registered in the Connections panel."""
+    a = node.agents
+    rgb         = a['head_rgb'].get()         if 'head_rgb'         in a else None
+    depth       = a['head_depth'].get()       if 'head_depth'       in a else None
+    cam_params  = a['head_cam_params'].get()  if 'head_cam_params'  in a else None
+    if rgb is None:
+        raise Exception("camera agent 'head_rgb' not registered — add it in the Connections panel")
+    return {{
+        'rgb':        rgb.get('im')                 if isinstance(rgb,        dict) else rgb,
+        'depth':      depth.get('im')               if isinstance(depth,      dict) else depth,
+        'cam_params': cam_params.get('cam_params')  if isinstance(cam_params, dict) else cam_params,
+    }}
 
 
 def find(node, **params) -> dict:
-    """Look for `target` and return its position.
+    """Skill `find` — mock detector flow.
 
-    Args:
-        target (str): object name to look for (e.g. "cup", "bottle").
-
-    Returns:
-        dict: {{
-            'isdone': True,
-            'msg': str,
-            'target': str,
-            'position': [x, y, z]  # metres, in robot base frame
-        }}
+    1. Fetch an image from the camera agent (see _fetch_data_find).
+    2. Send the image + params to the detector client over TCP.
+    3. Log the result and return it.
     """
-    target = params.get('target', '')
-    log_data({{'msg': f'find called for target={{target!r}}'}})
+    log_data({{'msg': f'find called with params={{params}}'}})
 
-    # TODO: real implementation. Example using a registered vision client:
-    #   vision = node.agents.get('vision')
-    #   if vision is not None:
-    #       result = vision.send({{'query': target}})
-    #       return {{'isdone': True, ...result}}
+    # 1. fetch image
+    data = _fetch_data_find(node)
 
-    return {{
-        'isdone': True,
-        'msg':    f'(stub) located {{target!r}}',
-        'target': target,
-        'position': [0.0, 0.0, 0.0],
+    # 2. call the detector client (TCP). Register a TCP client named 'detector'
+    #    (or rename below) in the Connections panel.
+    detector = current().dm.get_client('detector')
+    if detector is None:
+        raise Exception("TCP client 'detector' not registered — add it in the Connections panel")
+
+    # Edit the request shape to match your detector server's contract.
+    request = {{
+        'detector': 'mask2grasps',   # detector name on the server side
+        'image':    data['rgb'],
+        **params,
     }}
+    result = detector.send(request)  # -> whatever your server returns (dict / ndarray)
+
+    # 3. log the annotated image so it shows up in the UI Camera panel
+    log_data({{'log_image': data['rgb']}})
+
+    return {{'isdone': True, 'msg': 'find done', 'result': result}}
 '''
 
 
