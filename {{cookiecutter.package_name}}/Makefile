@@ -12,7 +12,7 @@ ROS_SETUP ?= /opt/ros/humble/setup.bash
 # Server port — override on the command line: make run PORT=8002
 PORT ?= {{cookiecutter.default_port}}
 
-.PHONY: install install-deps run terminate doctor new-skill test clean help
+.PHONY: install install-deps run cli terminate doctor skill-generic skill-detect test clean help
 
 help:
 	@echo "{{cookiecutter.package_name}} -- {{cookiecutter.description}}"
@@ -21,10 +21,16 @@ help:
 	@echo "  make install                          Editable-install {{cookiecutter.package_name}} (+ pyconnect, robot_agent if missing)"
 	@echo "  make install-deps                     Install pyconnect + robot_agent only"
 	@echo "  make doctor                           Pre-flight check (verifies env, ROS2, skill imports)"
-	@echo "  make run                              Start the agent (PORT=$(PORT))"
+	@echo "  make run                              Start the UI/HTTP agent (PORT=$(PORT))"
+	@echo "  make cli ARGS=\"<skill>[::<inputs>] [k=v ...]\""
+	@echo "                                        Run one skill via CLI (sources ROS, no server)"
+	@echo "                                        e.g.  make cli ARGS=\"find::apple\""
+	@echo "                                              make cli ARGS=\"--list\""
 	@echo "  make terminate                        Stop the agent listening on PORT=$(PORT)"
-	@echo "  make new-skill SKILL=<name> [FILE=<file>]"
-	@echo "                                        Scaffold a new skill (creates/appends file + updates skills_config)"
+	@echo "  make skill-generic SKILL=<name> [FILE=<file>]"
+	@echo "                                        Scaffold a generic skill stub (creates/appends file + updates skills_config)"
+	@echo "  make skill-detect  SKILL=<name> [FILE=<file>]"
+	@echo "                                        Scaffold a detect-style skill (mock _fetch_data + detector client call)"
 	@echo "  make test                             Smoke test: list skills via curl"
 	@echo "  make clean                            Remove __pycache__ and *.egg-info"
 
@@ -49,6 +55,16 @@ run:
 	source $(ROS_SETUP) && \
 	cd $(ROOT) && \
 	uvicorn {{cookiecutter.package_name}}.main:app --host 0.0.0.0 --port $(PORT) --reload
+
+# Run one skill via the CLI; sources ROS first.
+# Pass everything verbatim via ARGS:
+#   make cli ARGS="find::apple"
+#   make cli ARGS="find::apple count=3 verbose=true"
+#   make cli ARGS="--list"
+cli:
+	@source $(ROS_SETUP) && \
+	cd $(ROOT) && \
+	python3 -m {{cookiecutter.package_name}} $(ARGS)
 
 # Kill whatever is listening on $(PORT): SIGTERM, wait 3s, then SIGKILL if alive.
 terminate:
@@ -82,14 +98,24 @@ doctor:
 	python3 -m robot_agent.diagnose {{cookiecutter.package_name}} $(ROOT)/{{cookiecutter.package_name}}/data $(ARGS)
 
 # Scaffold a new skill. SKILL is required; FILE defaults to <SKILL>.py.
-#   make new-skill SKILL=wave
-#   make new-skill SKILL=rotate FILE=arm.py
-new-skill:
+#   make skill-generic SKILL=wave
+#   make skill-generic SKILL=rotate FILE=arm.py
+skill-generic:
 	@if [ -z "$(SKILL)" ]; then \
-		echo "Usage: make new-skill SKILL=<skill_name> [FILE=<file>]"; \
+		echo "Usage: make skill-generic SKILL=<skill_name> [FILE=<file>]"; \
 		exit 2; \
 	fi
-	python3 -m robot_agent.new_skill {{cookiecutter.package_name}} $(SKILL) $(FILE)
+	python3 -m robot_agent.new_skill {{cookiecutter.package_name}} $(SKILL) $(FILE) --template generic
+
+# Scaffold a detect-style skill (mocks _fetch_data + detector TCP client call).
+#   make skill-detect SKILL=find_apple
+#   make skill-detect SKILL=find_apple FILE=detectors.py
+skill-detect:
+	@if [ -z "$(SKILL)" ]; then \
+		echo "Usage: make skill-detect SKILL=<skill_name> [FILE=<file>]"; \
+		exit 2; \
+	fi
+	python3 -m robot_agent.new_skill {{cookiecutter.package_name}} $(SKILL) $(FILE) --template detect
 
 test:
 	@echo "[{{cookiecutter.package_name}}] Registered skills:"

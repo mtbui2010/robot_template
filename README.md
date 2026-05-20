@@ -6,9 +6,8 @@ a new robot package that uses [`robot_agent`](../robot_agent) as its runtime.
 ## Usage
 
 ```bash
-pip install cookiecutter        # one-time
-cd /media/keti/workdir/remote_dir
-cookiecutter robot_template/
+pip install cookiecutter
+cookiecutter https://github.com/mtbui2010/robot_template
 ```
 
 Cookiecutter then prompts:
@@ -32,20 +31,23 @@ After running the cookiecutter, you'll have a directory named after your
 
 ```
 <package_name>/
-├── Makefile                  # install / run / terminate / doctor / help
+├── Makefile                  # install / run / cli / terminate / doctor / help
 ├── README.md                 # tailored quickstart for the new robot
-├── pyproject.toml            # editable-installable package
+├── pyproject.toml            # editable-installable package; registers
+│                             #   [project.scripts] <package_name> = "<package_name>.__main__:cli"
 ├── .gitignore
 ├── .vscode/launch.json       # F5 debug uvicorn from VSCode
 └── <package_name>/
     ├── __init__.py
-    ├── main.py               # create_app('<package_name>', data_dir=<here>/data)
+    ├── main.py               # UI entry: create_app('<package_name>', data_dir=<here>/data)
+    ├── __main__.py           # CLI entry: from robot_agent.cli import main
     ├── data/                 # runtime state (connections.json, logs/, ...)
     ├── configs/
     │   ├── skills_config.py  # SKILL_CONFIGS — populated from your skills list
     │   ├── tasks.py          # optional runtime config (ARM_CONFIGS, ENV, ...)
     │   └── guide.py          # optional planner guide stub
     ├── skills/
+    │   ├── __init__.py       # auto_wrap_skills(SKILL_CONFIGS, pkg='<package_name>')
     │   └── <skill>.py        # one mock implementation per skill, ready to edit
     └── template_skills/      # reference implementations (external / pure-ROS2)
 ```
@@ -56,8 +58,24 @@ After running the cookiecutter, you'll have a directory named after your
 cd <package_name>
 make install      # pip install -e robot_agent, pyconnect, then this package
 make doctor      # pre-flight: ROS2, imports, data dir
-make run         # uvicorn <package_name>.main:app --port <default_port>
+make run         # UI / HTTP: uvicorn <package_name>.main:app --port <default_port>
 ```
+
+You also get two non-UI ways to drive the robot, ready out of the box:
+
+```bash
+# CLI (registered as console-script via [project.scripts])
+<package_name> find::apple
+<package_name> --list
+make cli ARGS="find::apple"             # convenience wrapper that sources ROS
+
+# Python API
+python -c "from <package_name>.skills.find import find; print(find('apple'))"
+```
+
+All three modes share the same `bootstrap()` core from
+[`robot_agent.runtime`](../robot_agent/robot_agent/runtime.py) — only the
+outer shell differs. Run **one mode at a time** against a real robot.
 
 ## Adding more skills later
 

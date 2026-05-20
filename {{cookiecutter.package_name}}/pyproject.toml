@@ -13,6 +13,9 @@ dependencies = [
 # Requires robot_agent, pyconnect, ROS2 in the environment.
 # Install with: pip install -e .
 
+[project.scripts]
+{{cookiecutter.package_name}} = "{{cookiecutter.package_name}}.__main__:cli"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["{{cookiecutter.package_name}}*"]
