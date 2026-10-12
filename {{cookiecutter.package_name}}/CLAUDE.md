@@ -31,7 +31,7 @@ Idempotent. One process = one mode.
 
 ```python
 def my_skill(node, **params) -> dict:
-    # node = pyconnect.ros.custom_node.CustomNode (spinning).
+    # node = robot_agent.connect.ros.node.CustomNode (spinning).
     # params = caller-supplied kwargs (HTTP body / CLI k=v / Python kwargs).
     return {'isdone': True, ...}     # contract: must return dict with 'isdone'.
 ```

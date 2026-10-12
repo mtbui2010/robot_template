@@ -7,11 +7,24 @@ name = "{{cookiecutter.package_name}}"
 version = "{{cookiecutter.version}}"
 description = "{{cookiecutter.description}}"
 authors = [{ name = "{{cookiecutter.author}}" }]
+#
+# ROS 2 (rclpy, cv_bridge, sensor_msgs) and any local `rosinterfaces`-style
+# ament package are NOT pip-installable — they come from the sourced ROS distro
+# and your colcon workspace. `make doctor` checks for them.
+#
+# numpy is pinned to 1.26.4 to stay on the ABI ROS 2's compiled extensions were
+# built against; numpy 2.x breaks them at import. That in turn caps
+# opencv-python below 5, which requires numpy>=2.
 dependencies = [
     "robot_agent",
+    "numpy==1.26.4",
+    "opencv-python<5",
 ]
-# Requires robot_agent, pyconnect, ROS2 in the environment.
-# Install with: pip install -e .
+
+[project.optional-dependencies]
+# Pull in every robot_agent extra (transports + LLM backends + TTS).
+# `make install` uses this; drop entries you do not need.
+all = ["robot_agent[all]"]
 
 [project.scripts]
 {{cookiecutter.package_name}} = "{{cookiecutter.package_name}}.__main__:cli"

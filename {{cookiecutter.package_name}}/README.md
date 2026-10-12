@@ -8,7 +8,7 @@ Built on [`robot_agent`](../robot_agent). Generated from the
 ## Quickstart
 
 ```bash
-make install      # editable-install pyconnect, robot_agent, this package
+make install      # editable-install robot_agent, this package
 make doctor      # pre-flight: ROS2, skill imports, data dir
 make run         # UI / HTTP: uvicorn on port {{cookiecutter.default_port}}
 ```
@@ -111,7 +111,7 @@ which decorates each public skill so missing `node=` triggers
 def skill(node, **params) -> dict:
     """
     Args:
-        node:    live pyconnect.ros.custom_node.CustomNode (subclass of rclpy.node.Node),
+        node:    live robot_agent.connect.ros.node.CustomNode (subclass of rclpy.node.Node),
                  already spinning in a MultiThreadedExecutor.
         params:  JSON body of POST /skill/<name> unpacked as kwargs.
 
@@ -126,7 +126,7 @@ def skill(node, **params) -> dict:
 ```
 
 See [`template_skills/`](./{{cookiecutter.package_name}}/template_skills) for
-three reference patterns: external (HTTP), pure-ROS2, and pyconnect-wrapped.
+three reference patterns: external (HTTP), pure-ROS2, and NodeAgent-wrapped.
 
 ## Connecting from the UI
 

@@ -14,6 +14,36 @@ make install && make run
 
 ---
 
+## Which tool for which situation
+
+Three ways to get a new robot package, depending on how much it shares with an
+existing one:
+
+| Situation | Tool |
+|---|---|
+| Nothing in common — new hardware, new skills | **this cookiecutter** (below) |
+| Same family as an existing robot, diverging from here | `python -m robot_agent.new_robot <new_pkg> --from <src_pkg>` |
+| New robot that wants a few skills from an existing one | cookiecutter, then `python -m robot_agent.copy_skill <skill>... --from <src> --to <new>` |
+
+Both CLIs are also wired into every generated project's Makefile as
+`make new-robot NEW=...` and `make copy-skill FROM=... SKILL="..."`.
+
+**Forking** (`new_robot`) copies the source repo, renames the package
+everywhere, and gives the fork its own conda env and port. It carries over
+`configs/locations/` (device endpoints, per-site overrides, the active-site
+marker) and `configs/tasks.py`, so the fork runs as-is against the same
+hardware — note that both packages then address the same robot, which is unsafe
+to run simultaneously. For a fork aimed at *different* hardware pass
+`--reset-sites` (and `--blank-configs` to drop the hardware numbers too).
+
+**Copying skills** (`copy_skill`) follows what the skill imports from its own
+package, so helper modules come along — asking for `pick` from `kcare_robot`
+pulls 14 modules. It never overwrites an existing file without `--force`, and it
+prints which config groups the copied code reads so you know what to declare in
+`configs/tasks.py`. Skills are copied rather than shared: a skill is bound to
+the hardware it was written for, so each robot owns an editable copy.
+
+
 ## What you get
 
 A complete package that drops straight into the
@@ -39,7 +69,7 @@ the [`robotapp`](../robotapp) dashboard.
     │   └── <skill>.py        one runnable mock per skill (find/pick/place
     │                         get domain-aware templates; others get generic stubs)
     └── template_skills/      three reference patterns, NOT auto-registered
-        ├── grip_pyconnect.py     Pattern 1 — pyconnect NodeAgent (90 % of cases)
+        ├── grip_node_agent.py    Pattern 1 — connect-layer NodeAgent (90 % of cases)
         ├── grip_pure_ros2.py     Pattern 2 — raw rclpy + custom QoS / feedback
         └── grip_external.py     Pattern 3 — separate process / language / host
 ```
@@ -66,7 +96,6 @@ python -c "from <package_name>.skills.find import find; print(find('apple'))"
 | `skills`              | `find,pick,place`                | Comma-separated skill names — one file generated per skill       |
 | `default_port`        | `8001`                           | Default port in the Makefile                                     |
 | `robot_agent_relpath` | `../robot_agent`                 | Editable-install path for `robot_agent`                          |
-| `pyconnect_relpath`   | `../pyconnect`                   | Editable-install path for `pyconnect`                            |
 
 The generator's post-hook
 ([`hooks/post_gen_project.py`](hooks/post_gen_project.py)) parses the skill
@@ -99,7 +128,7 @@ That's it. One dict, one convention, infinite robots.
 
 ```bash
 cd <package_name>
-make install      # editable-installs robot_agent, pyconnect, this package
+make install      # editable-installs robot_agent, this package
 make doctor       # pre-flight: ROS2 sourced? skills importable? data dir writable?
 make run          # uvicorn <package_name>.main:app --port <default_port>
 ```
