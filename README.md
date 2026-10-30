@@ -62,6 +62,10 @@ the [`robotapp`](../robotapp) dashboard.
     ├── __main__.py           CLI entry → robot_agent.cli:main
     ├── configs/
     │   ├── skills_config.py  SKILL_CONFIGS — auto-populated from your skill list
+    │   ├── manifest.yaml     what each skill is to the planner (action, params,
+    │   │                     pre / effects, errors) — auto-populated too
+    │   ├── adapter.py        RobotAdapter: bind plan steps to skills, geometry,
+    │   │                     language, observe / health hooks
     │   ├── tasks.py          ARM_CONFIGS, ENV stubs
     │   └── guide.py          planner guide stub
     ├── skills/
@@ -104,6 +108,9 @@ list and emits:
   (with domain-aware templates for `find`, `pick`, `place`; generic stubs for
   anything else),
 - a `SKILL_CONFIGS` dict in `configs/skills_config.py` already wired up,
+- a `configs/manifest.yaml` declaring each skill for the planner (known names —
+  move, find, pick, place, open/close_drawer, say, ask — get their abstract
+  action, params and errors filled in; others get a `TODO`),
 - a Makefile with your chosen port pinned.
 
 ---
@@ -120,7 +127,14 @@ honours the same contract with `robot_agent`:
 SKILL_CONFIGS: dict[str, tuple[str, str]]   # name -> (module_path, func_name)
 ```
 
-That's it. One dict, one convention, infinite robots.
+That's enough to run skills. For the planner (SAGE / closed loop) the robot
+also declares itself as data — `configs/manifest.yaml` + `configs/adapter.py`,
+the `robot_agent.contract` (see `robot_agent/docs/contract.md`). Check the two
+stay in step with the skills:
+
+```bash
+python -m robot_agent.contract.check_manifest <package_name>
+```
 
 ---
 
