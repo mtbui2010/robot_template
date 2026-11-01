@@ -49,7 +49,7 @@ robot_template/
         ├── main.py                         # UI shim
         ├── __main__.py                     # CLI shim
         ├── skills/__init__.py              # auto_wrap_skills(...)
-        ├── configs/{skills_config,tasks,guide,adapter}.py + manifest.yaml
+        ├── configs/{skills_config,tasks,adapter}.py + manifest.yaml
         └── template_skills/                # reference patterns (NOT auto-registered)
 ```
 

@@ -312,6 +312,10 @@ language: en
 capabilities: {{base: {base}, arms: {arms}, hands: {hands}, lift: false, head: false, drawer: false}}
 # metres; robot_agent's defaults shown
 geometry: {{arrive_tol_m: 0.3, reach_m: 0.78, reach_far_m: 1.0}}
+# optional planner data (robot_agent docs/direct_prompt.md, docs/memory.md):
+#   description: one or two sentences about the body (else made from capabilities)
+#   planner: {{seed_memory: ../planner/seed_memory.jsonl, notes: ["a short rule the planner must know"]}}
+# The direct planner's prompt is built from this file, the ENV places and the seed pool: no guide to write.
 skills:
 """
 

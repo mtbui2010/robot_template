@@ -66,8 +66,9 @@ the [`robotapp`](../robotapp) dashboard.
     │   │                     pre / effects, errors) — auto-populated too
     │   ├── adapter.py        RobotAdapter: bind plan steps to skills, geometry,
     │   │                     language, observe / health hooks
-    │   ├── tasks.py          ARM_CONFIGS, ENV stubs
-    │   └── guide.py          planner guide stub
+    │   └── tasks.py          ARM_CONFIGS, ENV stubs
+    │                         (no planner guide: the planners' prompts are built from
+    │                         manifest.yaml; optional planner.notes there)
     ├── skills/
     │   ├── __init__.py       auto_wrap_skills(SKILL_CONFIGS, pkg='<package_name>')
     │   └── <skill>.py        one runnable mock per skill (find/pick/place

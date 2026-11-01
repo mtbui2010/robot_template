@@ -82,7 +82,7 @@ which decorates each public skill so missing `node=` triggers
     ├── configs/
     │   ├── skills_config.py       # SKILL_CONFIGS: maps skill name → module:func
     │   ├── tasks.py               # optional runtime values (ENV, ARM_CONFIGS, ...)
-    │   └── guide.py               # optional planner guide
+    │   └── manifest.yaml          # skills for the planner; optional planner.notes / seed_memory
     ├── skills/
     │   ├── __init__.py            # auto_wrap_skills(SKILL_CONFIGS, pkg=...)
     │   └── <skill>.py             # one file per skill
